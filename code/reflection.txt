@@ -1,6 +1,20 @@
 Write your reflection here.
 
-See reflection.md for what makes a good reflection — be specific, use the
-terminology from this assignment (rerun, widget, return value, guard, bytes vs.
-text, decode, session state, initialise once, button-triggered, metric), and make
-it actionable.
+One super valuable thing that I'm starting to pick up on is guarding my 
+processes by wrapping them in an if statement. This way, by guarding, the 
+whole code doesn't crash if there isn't an initial input. Also, this
+works side by side with button-triggered widgets. I used the combination of these
+features to run my code when the user is ready, not whenever the actual code starts 
+running. 
+
+To start the code, I initialised it, with the proper initialise once form, to set up my 
+starting values so I would never have to overwrite the, again on later reruns. This feature synergizes 
+with session state really well. I used session state to make the code remember what the 
+user input so I could run further analysis. This way, the user didn't have to reset the code every time. 
+The analysis that I did used the metric function in streamlit to store information about 
+the various user inputs across previousinstances. This way, the user didn't have to rerun the entire code and they could see stored 
+information across previous runs. 
+
+When the code was finally all set, it utiilized functions to give the user a return value that
+outputted a decoded json file. I wrote script to decode the json file from bytes into text so that
+the functions could obtain real information and output something valuable to the user. 
