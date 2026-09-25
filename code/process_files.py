@@ -43,7 +43,7 @@ import streamlit as st
 import json
 from packaging_parser import calc_total_units, get_unit, parse_packaging
 
-st.title("Process Many Files of Packages")
+st.title("Process Package Files")
 
 # --- 1. Initialise once ---------------------------------------------------------
 if "files_processed" not in st.session_state:
@@ -72,7 +72,7 @@ if process and package_file is not None:
     st.session_state.files_processed += 1
     st.session_state.packages_processed += len(packages)
     st.session_state.file_summaries.append(
-        f"{package_file.name} ➡️ {len(packages)} packages"
+        f"{len(packages)} packages written to data/{out_name}"
     )
 
 # --- 3. Display from state ------------------------------------------------------
