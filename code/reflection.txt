@@ -1,11 +1,21 @@
-Write your reflection here.
+I built a Streamlit app (process_files.py) that processes uploaded text files of packages and remembers results across uploads, 
+rather than starting fresh each time. The core challenge was that Streamlit re-runs the whole script top to bottom on every user interaction, so anything I wanted to accumulate
+ — like a running count of files and packages — would reset on every rerun unless I handled it deliberately.
+The most valuable pattern I picked up is guarding logic behind if statements. Wrapping my processing in if package_file is not None: stops the app from crashing when 
+no file has been uploaded yet, because st.file_uploader returns None until a file is chosen, and calling .read() on None throws an AttributeError. 
+I paired this with a button (st.button("Process File", key="process")) so that choosing a file and processing it are two separate actions. The guard if process 
+and package_file is not None: means the work only runs on the single rerun right after the click — this is what prevents the app from double-counting the same file on later reruns.
 
-I built a Streamlit app (process_files.py) that processes uploaded text files of packages and remembers results across uploads, rather than starting fresh each time. The core challenge was that Streamlit re-runs the whole script top to bottom on every user interaction, so anything I wanted to accumulate — like a running count of files and packages — would reset on every rerun unless I handled it deliberately.
+I also learned the three-part session-state pattern. First, initialise once: if "files_processed" not in st.session_state: sets my starting values (0, 0, and an empty list) a 
+single time, so later reruns don't overwrite them. Second, update on the click: inside the guarded block I do 
+st.session_state.files_processed += 1 and st.session_state.packages_processed += len(packages), adding to the stored totals. 
+Third, display from state: I read those values back out into two st.metric cards inside st.columns(2) and loop over st.session_state.file_summaries to show 
+one st.info line per file. Because the values live in session state, they persist across reruns and the user sees a growing history instead of a reset.
+On the parsing side, I used the packaging_parser module — parse_packaging(line) to turn each cleaned line into a package, plus calc_total_units and get_unit. 
+I also learned that an uploaded file arrives as bytes, so I had to decode it with .read().decode("utf-8").splitlines() before the parser could work with real text, 
+and then write the results out with json.dump.
 
-The most valuable pattern I picked up is guarding logic behind if statements. Wrapping my processing in if package_file is not None: stops the app from crashing when no file has been uploaded yet, because st.file_uploader returns None until a file is chosen, and calling .read() on None throws an AttributeError. I paired this with a button (st.button("Process File", key="process")) so that choosing a file and processing it are two separate actions. The guard if process and package_file is not None: means the work only runs on the single rerun right after the click — this is what prevents the app from double-counting the same file on later reruns.
-
-I also learned the three-part session-state pattern. First, initialise once: if "files_processed" not in st.session_state: sets my starting values (0, 0, and an empty list) a single time, so later reruns don't overwrite them. Second, update on the click: inside the guarded block I do st.session_state.files_processed += 1 and st.session_state.packages_processed += len(packages), adding to the stored totals. Third, display from state: I read those values back out into two st.metric cards inside st.columns(2) and loop over st.session_state.file_summaries to show one st.info line per file. Because the values live in session state, they persist across reruns and the user sees a growing history instead of a reset.
-
-On the parsing side, I used the packaging_parser module — parse_packaging(line) to turn each cleaned line into a package, plus calc_total_units and get_unit. I also learned that an uploaded file arrives as bytes, so I had to decode it with .read().decode("utf-8").splitlines() before the parser could work with real text, and then write the results out with json.dump.
-
-I want to practice the session-state pattern on a different app without scaffolding to make sure I can reproduce it from memory. I'd also like to handle the edge cases I noticed but didn't fully address: creating the data/ directory with os.makedirs("data", exist_ok=True) so the write never fails, and calling package_file.seek(0) before re-reading a file. Finally, I learned that tests check exact UI strings, so I want to get in the habit of matching public-facing text (titles, success messages) to the spec before running the tests.
+I want to practice the session-state pattern on a different app without scaffolding to make sure I can reproduce it from memory. 
+I'd also like to handle the edge cases I noticed but didn't fully address: creating the data/ directory with os.makedirs("data", exist_ok=True) so the write never fails, 
+and calling package_file.seek(0) before re-reading a file. Finally, I learned that tests check exact UI strings, 
+so I want to get in the habit of matching public-facing text (titles, success messages) to the spec before running the tests.
